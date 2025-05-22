@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Formulari APPCC</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f2f0f5;
+      margin: 0;
+      padding: 20px;
+      color: #2e2e2e;
+    }
+
+    h1 {
+      text-align: center;
+      color: #5d4b7a;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #e0dce4;
+    }
+
+    th {
+      background-color: #7a6ea1;
+      color: white;
+    }
+
+    tr:hover {
+      background-color: #f8f6fa;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+
+    button {
+      margin-top: 20px;
+      margin-right: 10px;
+      padding: 12px 20px;
+      background-color: #7a6ea1;
+      color: white;
+      font-size: 15px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #61568a;
+    }
+
+    .print-header {
+      display: none;
+    }
+
+    @media print {
+      button {
+        display: none;
+      }
+
+      .print-header {
+        display: block;
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 18px;
+      }
+
+      .print-header h2 {
+        margin: 0;
+        color: #5d4b7a;
+      }
+
+      .print-header p {
+        margin: 0;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="print-header">
+    <h2>Formulari APPCC</h2>
+    <p id="fechaActual"></p>
+  </div>
+  <h1>Formulari APPCC</h1>
+  <form id="appccForm">
+    <table>
+      <thead>
+        <tr>
+          <th>Tasca</th>
+          <th>Freqüència</th>
+          <th>Data</th>
+          <th>Moment</th>
+          <th>Estat</th>
+          <th>Responsable</th>
+          <th>Observacions</th>
+        </tr>
+      </thead>
+      <tbody id="formTableBody"></tbody>
+    </table>
+    <button type="button" onclick="guardarDatos()">Desa dades</button>
+    <button type="button" onclick="cargarDatos()">Carrega dades</button>
+    <button type="button" onclick="borrarDatos()">Esborra tot</button>
+    <button type="button" onclick="window.print()">Imprimeix / Desa com PDF</button>
+  </form>
+
+  <script>
+    const tareas = [
+      ["Cafetera i molinets", "Diari"],
+      ["Nevera de refrescos", "Diari"],
+      ["Rentavaixelles i moble", "Diari"],
+      ["Taula de treball i barra", "Diari"],
+      ["Sòl escombrar i fregar", "Diari"],
+      ["Taules i cadires", "Diari"],
+      ["Magatzem de plats", "Setmanal"],
+      ["Aparador MEP", "Setmanal"],
+      ["Aparador", "Setmanal"],
+      ["Magatzem", "Setmanal"],
+      ["Armari de licors i cocteleria", "Setmanal"],
+      ["Bodega", "Setmanal"],
+      ["Finestres i portes", "Setmanal"],
+      ["Cubells d'escombraries", "Setmanal"],
+      ["Nevera de vins", "Setmanal"],
+      ["Buidar congeladors i netejar", "Mensual"],
+      ["Buidar màquina de gel i netejar", "Mensual"],
+      ["Cafetera (neteja de pols)", "Setmanal"],
+      ["Revisió de l'espai d'escombraries", "Diari"],
+      ["Material de neteja", "Diari"]
+    ];
+
+    function crearTabla() {
+      const tbody = document.getElementById("formTableBody");
+      tbody.innerHTML = "";
+      tareas.forEach(([tarea, frecuencia]) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${tarea}</td>
+          <td>${frecuencia}</td>
+          <td><input type="date"></td>
+          <td>
+            <select>
+              <option value="Matí">Matí</option>
+              <option value="Tarda">Tarda</option>
+            </select>
+          </td>
+          <td>
+            <select>
+              <option value="Pendent">Pendent</option>
+              <option value="Fet">Fet</option>
+            </select>
+          </td>
+          <td><input type="text" placeholder="Nom del responsable"></td>
+          <td><textarea placeholder="Observacions"></textarea></td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function guardarDatos() {
+      const filas = document.querySelectorAll("#formTableBody tr");
+      const datos = Array.from(filas).map(fila => {
+        const celdas = fila.querySelectorAll("td");
+        return {
+          tasca: celdas[0].innerText,
+          freqüència: celdas[1].innerText,
+          data: celdas[2].querySelector("input").value,
+          moment: celdas[3].querySelector("select").value,
+          estat: celdas[4].querySelector("select").value,
+          responsable: celdas[5].querySelector("input").value,
+          observacions: celdas[6].querySelector("textarea").value
+        };
+      });
+      localStorage.setItem("appccData", JSON.stringify(datos));
+      alert("Dades desades correctament.");
+    }
+
+    function cargarDatos() {
+      const datos = JSON.parse(localStorage.getItem("appccData"));
+      if (!datos) return;
+      const filas = document.querySelectorAll("#formTableBody tr");
+      datos.forEach((dato, i) => {
+        const celdas = filas[i].querySelectorAll("td");
+        celdas[2].querySelector("input").value = dato.data;
+        celdas[3].querySelector("select").value = dato.moment;
+        celdas[4].querySelector("select").value = dato.estat;
+        celdas[5].querySelector("input").value = dato.responsable;
+        celdas[6].querySelector("textarea").value = dato.observacions;
+      });
+    }
+
+    function borrarDatos() {
+      if (confirm("Segur que vols esborrar totes les dades?")) {
+        localStorage.removeItem("appccData");
+        crearTabla();
+        alert("Totes les dades han estat esborrades.");
+      }
+    }
+
+    window.onload = () => {
+      crearTabla();
+      cargarDatos();
+      const avui = new Date();
+      const dataText = avui.toLocaleDateString('ca-ES', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      document.getElementById('fechaActual').textContent = `Data: ${dataText}`;
+    };
+      const fechaTexto = hoy.toLocaleDateString('ca-ES', {
+  weekday: 'long',
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+});
+  </script>
+</body>
+</html>
+Subido archivo HTML
